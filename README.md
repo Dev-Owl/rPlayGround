@@ -1,2 +1,2 @@
 # rPlayGround
-RustPlayGround
+Simple my Rust playground :)
