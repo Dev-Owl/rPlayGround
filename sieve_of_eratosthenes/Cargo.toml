@@ -1,0 +1,4 @@
+[package]
+name = "sieve_of_eratosthenes"
+version = "0.1.0"
+authors = ["DevOwl <c.muehle18@googlemail.com>"]
