@@ -46,7 +46,7 @@ fn create_setting(path: &str) -> File {
 	//Reopen read only
 	file = match File::open(path) {
 		Ok(file) => file,
-		Err(..)  => create_setting(path),
+		Err(..)  => panic!(format!("Unable to open or create config file at {}", path)),
 	};
 	return file;
 }
