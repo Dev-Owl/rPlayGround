@@ -1,0 +1,7 @@
+[package]
+name = "rNote"
+version = "0.1.0"
+authors = ["DevOwl <c.muehle18@googlemail.com>"]
+
+[dependencies]
+rustc-serialize = "0.3"
