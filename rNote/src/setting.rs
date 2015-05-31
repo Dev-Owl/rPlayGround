@@ -6,15 +6,27 @@ use std::borrow::Borrow;
 use std::env;
 use std::path::Path;
 use std::fs;
+use std::collections::HashMap;
 
 //Allow creation of JSON and creation from JSON
 #[derive(RustcDecodable, RustcEncodable)]
 pub struct Settings{
- 	pub utc: bool,
-	pub id_offset:u32,
-	pub data:String,
+ 	pub version: u32,
+	pub data: HashMap<String,String>,
 }
 
+impl Settings{
+	
+	pub fn get_default(&self,key: &str ,default: &str) -> String {
+		match self.data.get( key) {
+			Some(v) => v.to_string(),
+			None => default.to_string(),
+		}
+	}
+	pub fn get(&self, key: &str) -> Option<&String> {
+		self.data.get( key) 
+	}
+}
 
 #[cfg(any(unix))]
 pub fn get_config() -> Settings{	
@@ -62,7 +74,11 @@ fn create_setting(path: &str) -> File {
 		Err(..) => panic!(format!("Unable to open or create config file at {}", path)),
 	};
 	//Add defaults
-	let defaults = Settings { utc:true,id_offset:500, data:".rnotes_data".to_string()};
+	let mut tmp_hash = HashMap::new();
+	tmp_hash.insert("UTC".to_string(),"1".to_string());
+	tmp_hash.insert("id_offset".to_string(),"500".to_string());
+	tmp_hash.insert("data".to_string(),"data".to_string());
+	let defaults = Settings { version: 0, data: tmp_hash};
 	file.write_all(json::encode(&defaults).unwrap().into_bytes().borrow()).unwrap();
 	//Reopen read only
 	file = match File::open(path) {
@@ -71,5 +87,3 @@ fn create_setting(path: &str) -> File {
 	};
 	return file;
 }
-
-
