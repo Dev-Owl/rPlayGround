@@ -2,32 +2,36 @@ use time;
 use std::io;
 use std::fs;
 use std::path::Path;
+use setup;
+use rustc_serialize::json;
+use std::io::prelude::*;
+use std::borrow::Borrow;
 
-#[derive(Default)]
-pub struct Note<'a>{
-	pub title: &'a str,
-	pub tag: Vec<&'a str>,
+#[derive(RustcDecodable, RustcEncodable, Default)]
+pub struct Note{
+	pub title: String,
+	pub tag: Vec<String>,
 	pub last_update: u32,
 	pub creation: u32,
 	pub id: u32,
 }
 
 
-impl<'a> Note<'a>{
+impl Note{
 	
-	pub fn new(new_id : u32,  new_title: &str) -> Note{
+	pub fn new(new_id : u32,  new_title: String) -> Note{
 		Note {creation: unix_timestamp(), id:new_id,title:new_title, ..Default::default() }
 	}
 	
-	pub fn add_tag(&mut self, tag: &'a str){
-		if !self.has_tag(tag){
-			self.tag.push(tag);
+	pub fn add_tag(&mut self, tag: String){
+		if !self.has_tag(&tag){
+			self.tag.push(tag.to_string());
 		}
 		self.update();
 	}
 	
-	pub fn has_tag(&self, tag: &str) ->bool{
-		self.tag.contains( &tag)
+	pub fn has_tag(&self,tag: &str) ->bool{
+		self.tag.contains(&tag.to_string())
 	}
 	
 	pub fn update(&mut self){
@@ -44,17 +48,27 @@ impl<'a> Note<'a>{
 					  {
 						if match x.parse::<u32>() {
 							Ok(v) => v,
-							Error => 0,
+							error => 0,
 						} > tmp {
 							tmp = x.parse::<u32>().unwrap();
 						}
 					  } 
 					},
-			Error => panic!("Unable to read in data directory at {}", path),
+			error => panic!("Unable to read in data directory at {}", path),
 		};
 		
 		new_id += tmp +1;
 		new_id
+	}
+	
+	pub fn save(&self, path: &str){
+		let mut final_path = path.to_string();
+		final_path.push_str("/");
+		final_path.push_str(&self.id.to_string());
+		if fs::metadata(&final_path).is_err(){
+			let mut file = setup::file_create(&final_path);
+			file.write_all(json::encode(&self).unwrap().into_bytes().borrow()).unwrap();
+		}
 	}
 	
 }
