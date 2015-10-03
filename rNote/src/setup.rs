@@ -15,7 +15,7 @@ use setting::Settings;
 pub fn get_base_path() -> String {
 	let result = env::home_dir();
 	let mut path;
-	
+
 	if !result.is_none(){
 		path = result.unwrap();
 		path = path.join("rnote/");
@@ -44,14 +44,14 @@ pub fn env_check(){
 
 
 fn create_setting(path: &str){
-	
+
 	//Check the base folder
 	folder_create(path);
-	
+
 	//Check the settings files
 	let mut tmp_path = path.to_string();
 	tmp_path.push_str("settings.json");
-	
+
 	if fs::metadata(&tmp_path).is_err() {
 		let mut file;
 		//Create file
@@ -85,4 +85,10 @@ pub fn file_create(path: &str)->File{
 			Ok(file) => file,
 			Err(..) => panic!(format!("Unable to create config file at {}", path)),
 	};
+}
+
+#[test]
+fn test_env_check()
+{
+    env_check();
 }

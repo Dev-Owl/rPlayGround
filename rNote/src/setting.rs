@@ -13,7 +13,7 @@ pub struct Settings{
 }
 
 impl Settings{
-	
+
 	pub fn get_default(&self,key: &str ,default: &str) -> String {
 		match self.data.get( key) {
 			Some(v) => v.to_string(),
@@ -21,7 +21,7 @@ impl Settings{
 		}
 	}
 	pub fn get(&self, key: &str) -> Option<&String> {
-		self.data.get( key) 
+		self.data.get( key)
 	}
 }
 
@@ -42,4 +42,8 @@ fn read_setting(path: &str) -> Settings{
 	return settings;
 }
 
-
+#[test]
+fn test_get_config()
+{
+   let settings = get_config();
+}
