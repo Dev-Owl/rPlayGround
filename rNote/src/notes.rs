@@ -25,6 +25,13 @@ impl Note{
 		Note {creation: unix_timestamp(), id:new_id,title:new_title, ..Default::default() }
 	}
 
+	pub fn load(exising_id : u32, path: &str) -> Note{
+		let mut final_path = path.to_string();
+		final_path.push_str("/");
+		final_path.push_str(&exising_id.to_string());
+		return json::decode(&setup::file_read(&final_path)).unwrap();
+	}
+
 	pub fn add_tag(&mut self, tag: String){
 		if !self.has_tag(&tag){
 			self.tag.push(tag.to_string());
@@ -73,6 +80,21 @@ impl Note{
 		}
 	}
 
+	pub fn delete(&self, path: &str){
+		let mut final_path = path.to_string();
+		final_path.push_str("/");
+		final_path.push_str(&self.id.to_string());
+		if ! fs::metadata(&final_path).is_err(){
+			if( fs::remove_file(&final_path).is_err())
+			{
+				panic!("Failed to delete a note at {}",path);
+			}
+		}
+		else{
+			panic!("Loaded note is not on the harddsik")
+		}
+	}
+
 }
 
 pub fn unix_timestamp() -> u32{
@@ -94,7 +116,7 @@ pub fn file_list(dir: &Path) -> io::Result<Vec<String>>{
 
 
 #[test]
-fn test_create_note()
+fn test_note_create()
 {
   let settings = setting::get_config();
   let new_id: u32 = Note::new_id( &settings.get_default("data","data"),
@@ -103,4 +125,27 @@ fn test_create_note()
   let mut my_note = Note::new(new_id,"Owls everywhere".to_string());
   my_note.add_tag("Testing".to_string());
   my_note.save( &settings.get_default("data","data"));
+}
+
+#[test]
+fn test_note_delete(){
+	let settings = setting::get_config();
+	let new_id: u32 = Note::new_id( &settings.get_default("data","data"),
+  										 settings.get_default("id_offset","500").parse::<u32>().unwrap());
+
+    let my_note = Note::new(new_id,"Owls everywhere".to_string());
+	my_note.save( &settings.get_default("data","data"));
+	my_note.delete(&settings.get_default("data","data"));
+}
+
+#[test]
+fn test_note_load(){
+	let settings = setting::get_config();
+	let new_id: u32 = Note::new_id( &settings.get_default("data","data"),
+										settings.get_default("id_offset","500").parse::<u32>().unwrap());
+
+	let mut my_note = Note::new(new_id,"Owls everywhere".to_string());
+	my_note.add_tag("Testing".to_string());
+	my_note.save( &settings.get_default("data","data"));
+	let mut loaded_note = Note::load(new_id, &settings.get_default("data","data"));
 }

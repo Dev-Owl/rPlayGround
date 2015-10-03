@@ -8,6 +8,7 @@ mod setup;
 use notes::Note;
 
 //TODO: Path handling is not correct change to PathBuf ??
+//TODO: Load a existing note
 
 #[cfg(not(test))]
 fn main() {
