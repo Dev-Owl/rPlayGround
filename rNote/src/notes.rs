@@ -13,23 +13,30 @@ use setting;
 pub struct Note{
 	pub title: String,
 	pub tag: Vec<String>,
+	pub project: String,
+	pub text: String,
+	pub done: bool,
+	pub started: bool,
 	pub last_update: u32,
 	pub creation: u32,
-	pub id: u32,
+	pub id: u32
 }
 
 
 impl Note{
 
 	pub fn new(new_id : u32,  new_title: String) -> Note{
-		Note {creation: unix_timestamp(), id:new_id,title:new_title, ..Default::default() }
+		Note {creation: unix_timestamp(), id:new_id,title:new_title,done:false,started:false, ..Default::default() }
 	}
 
 	pub fn load(exising_id : u32, path: &str) -> Note{
 		let mut final_path = path.to_string();
 		final_path.push_str("/");
 		final_path.push_str(&exising_id.to_string());
-		return json::decode(&setup::file_read(&final_path)).unwrap();
+		return match json::decode(&setup::file_read(&final_path)){
+			Ok(n) => n,
+			Err(e) => panic!("decode of json failed:{}", e),
+		};
 	}
 
 	pub fn add_tag(&mut self, tag: String){
@@ -70,6 +77,25 @@ impl Note{
 		new_id
 	}
 
+	pub fn exists(path: &str,id : u32) -> bool{
+		let mut result = false;
+		match file_list( Path::new( path)){
+			Ok(v) => {
+					  for x in v.iter()
+					  {
+						  if match x.parse::<u32>() {
+  							Ok(v) => v,
+  							error => 0,
+  						} == id {
+  							result = true;
+  						}
+					  }
+				  },
+		    Err(e) => panic!("Unable to read data directory at {}",path),
+		};
+		result
+	}
+
 	pub fn save(&self, path: &str){
 		let mut final_path = path.to_string();
 		final_path.push_str("/");
@@ -77,6 +103,7 @@ impl Note{
 		if fs::metadata(&final_path).is_err(){
 			let mut file = setup::file_create(&final_path);
 			file.write_all(json::encode(&self).unwrap().into_bytes().borrow()).unwrap();
+			file.sync_all();
 		}
 	}
 
@@ -116,7 +143,7 @@ pub fn file_list(dir: &Path) -> io::Result<Vec<String>>{
 
 
 #[test]
-fn test_note_create()
+fn test_note_create_exists()
 {
   let settings = setting::get_config();
   let new_id: u32 = Note::new_id( &settings.get_default("data","data"),
@@ -125,6 +152,7 @@ fn test_note_create()
   let mut my_note = Note::new(new_id,"Owls everywhere".to_string());
   my_note.add_tag("Testing".to_string());
   my_note.save( &settings.get_default("data","data"));
+  assert_eq!( Note::exists(&settings.get_default("data","data"),new_id),true);
 }
 
 #[test]
