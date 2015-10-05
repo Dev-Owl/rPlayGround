@@ -45,10 +45,26 @@ fn main() {
    //Setup env for application
    setup::env_check();
    //Get connfiguration
-   let settings = setting::get_config();
+   let settings = setting::get_config();let settings = setting::get_config();
    //Parse cmd arguments
+   print_note();
+}
+
+fn print_note()
+{
+    let settings = setting::get_config();let settings = setting::get_config();
+    let new_id: u32 = Note::new_id( &settings.get_default("data","data"),
+                                        settings.get_default("id_offset","500").parse::<u32>().unwrap());
+
+    let mut my_note = Note::new(new_id,"Owls everywhere".to_string());
+    my_note.add_tag("Testing".to_string());
+    my_note.add_tag("FuBar".to_string());
+    my_note.add_tag("Wurst".to_string());
+    my_note.set_text("This is my very long description for a very short and easy test task :)");
+    println!("{}", my_note);
 
 }
+
 #[test]
 fn test_cmd_new()
 {

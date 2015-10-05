@@ -6,6 +6,7 @@ use setup;
 use rustc_serialize::json;
 use std::io::prelude::*;
 use std::borrow::Borrow;
+use std::fmt;
 
 use setting;
 
@@ -48,6 +49,11 @@ impl Note{
 
 	pub fn has_tag(&self,tag: &str) ->bool{
 		self.tag.contains(&tag.to_string())
+	}
+
+	pub fn set_text(&mut self,text: &str){
+		self.text = text.to_string();
+		self.update();
 	}
 
 	pub fn update(&mut self){
@@ -122,6 +128,20 @@ impl Note{
 		}
 	}
 
+}
+//Temp test implementation of Display to "print" a note
+impl fmt::Display for Note {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+		let mut note_text = String::new();
+		note_text.push_str(&format!("----{}----\n", self.title ));
+		note_text.push_str("Tags:");
+		for tag in &self.tag {
+    		note_text.push_str(&format!(" {} ", tag ));
+		}
+		note_text.push_str("\n");
+		note_text.push_str(&format!("{}\n", self.text ));
+		write!(f,"{}",note_text)
+    }
 }
 
 pub fn unix_timestamp() -> u32{
