@@ -88,13 +88,17 @@ pub fn file_create(path: &str)->File{
 }
 
 pub fn file_read(path: &str) -> String{
-	let mut file =  File::open( path).unwrap();
 	let mut buffer = String::new();
-	return match file.read_to_string(&mut buffer) {
-				Ok(..) => buffer,
-				Err(..) => panic!("Unable to read from file at {}",path)
-			};
-
+	match File::open( path){
+		Ok(mut f) =>{
+			match f.read_to_string(&mut buffer) {
+						Ok(_) =>(),
+						Err(..) => panic!("Unable to read from file at {}",path),
+					};
+		},
+		Err(e) =>panic!(format!("Unable to read file at {} Err: {}", path,e)),
+	}
+	buffer
 }
 
 #[test]
