@@ -71,6 +71,7 @@ fn create_setting(path: &str){
 	folder_create(&tmp_path);
 }
 
+//Move to file uitly
 fn folder_create(path: &str){
 	if fs::metadata(path).is_err() {
 		//Add check to skip dir creation when exists
@@ -79,14 +80,14 @@ fn folder_create(path: &str){
 		}
 	}
 }
-
+//Move to file uitly
 pub fn file_create(path: &str)->File{
 	return match File::create(path) {
 			Ok(file) => file,
 			Err(..) => panic!(format!("Unable to create config file at {}", path)),
 	};
 }
-
+//Move to file uitly
 pub fn file_read(path: &str) -> String{
 	let mut buffer = String::new();
 	match File::open( path){
