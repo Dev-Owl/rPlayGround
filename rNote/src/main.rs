@@ -7,15 +7,15 @@ mod setting;
 mod notes;
 mod setup;
 mod note_handler;
+mod helper_time;
 
 use notes::Note;
 use docopt::Docopt;
 
 
 //TODO: Path handling is not correct change to PathBuf ??
-//TODO: Add function to check cmd arguments
 //TODO: Add function to search for notes
-//TODO: Add function to print notes to screen (inside note obj)
+//TODO: Add utility classes for files ...
 
 const USAGE: &'static str="
 rNote.
@@ -42,8 +42,6 @@ Options:
 ";
 
 fn main() {
-
-
    //Setup env for application
    setup::env_check();
    //Get connfiguration

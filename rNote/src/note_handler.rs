@@ -11,6 +11,7 @@ use setup;
 use notes::Note;
 use setting;
 
+
 pub struct Note_handler {
     pub data_path: String,
     pub id_offset: u32

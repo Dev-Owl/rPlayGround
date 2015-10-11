@@ -7,7 +7,8 @@ use std::fmt;
 use note_handler;
 use setup;
 use setting;
-
+use helper_time::unix_utc_now;
+use helper_time::to_tm;
 
 
 
@@ -28,7 +29,7 @@ pub struct Note{
 impl Note{
 
 	pub fn new(new_id : u32,  new_title: String) -> Note{
-		Note {creation: unix_timestamp(), id:new_id,title:new_title,done:false,started:false, ..Default::default() }
+		Note {creation: unix_utc_now(), id:new_id,title:new_title,done:false,started:false, ..Default::default() }
 	}
 
 	pub fn add_tag(&mut self, tag: String){
@@ -48,7 +49,7 @@ impl Note{
 	}
 
 	pub fn update(&mut self){
-		self.last_update = unix_timestamp();
+		self.last_update = unix_utc_now();
 	}
 }
 
@@ -80,25 +81,13 @@ impl fmt::Display for Note {
 			note_text.push_str("Done: Yes");
 			note_text.push_str("\n");
 		}
-		note_text.push_str(&format!("Last update: {}", from_unix_timestamp(self.last_update).ctime()));
+		note_text.push_str(&format!("Last update: {}", to_tm(self.last_update).ctime()));
 		note_text.push_str("\n");
-		note_text.push_str(&format!("Last update: {}", from_unix_timestamp(self.creation).ctime()));
+		note_text.push_str(&format!("Last update: {}", to_tm(self.creation).ctime()));
 		note_text.push_str("\n");
 		write!(f,"{}",note_text)
     }
 }
-
-//move to time_utily
-pub fn from_unix_timestamp(timestamp: i64) -> time::Tm{
-	let mut tm: time::Tm =  time::empty_tm();
-	tm.tm_year = 70;
-	return tm + time::Duration::seconds(timestamp);
-}
-//move to time_utily
-pub fn unix_timestamp() -> i64{
-	time::now_utc().to_timespec().sec
-}
-
 
 
 
